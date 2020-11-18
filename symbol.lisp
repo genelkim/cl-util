@@ -32,16 +32,35 @@
 ;; midval: name of variable storing bgnvar after it is interned into the ulf-lib package
 ;; callpkg: optional argument for the package that the output should be interned to
 ;;          if nil, it defaults to the value *ulf-lib-caller-pkg*
+;; intern-ht: optional argument for interning hash tables
 ;; body: body of the code (using midval)
 ;; outval: immediate output of the body
-(defmacro inout-intern ((bgnval midval inpkg &key (callpkg nil)) &body body)
+(defmacro inout-intern ((bgnval midval inpkg &key (callpkg nil) (intern-ht nil)) &body body)
   `(let* ((,midval (intern-symbols-recursive ,bgnval ,inpkg))
-          (outval (multiple-value-list (progn ,@body))))
-     (values-list
-       (cond
-         (,callpkg (intern-symbols-recursive outval ,callpkg))
-         (*intern-caller-pkg* (intern-symbols-recursive outval *intern-caller-pkg*))
-         (t outval)))))
+          (outval (multiple-value-list (progn ,@body)))
+          (simple-intern-fn
+            (lambda (obj)
+              (cond
+                (,callpkg (intern-symbols-recursive obj ,callpkg))
+                (*intern-caller-pkg* (intern-symbols-recursive obj *intern-caller-pkg*))
+                (t obj))))
+          (general-intern-fn
+            (lambda (obj)
+                       (cond
+                         ; Intern lists or symbols
+                         ((or (listp obj) (symbolp obj))
+                          (funcall simple-intern-fn obj))
+                         ; Intern hash table contents if intern ht is t
+                         ((and (eql (type-of obj) 'hash-table) ,intern-ht)
+                          (let ((new-ht (make-hash-table :test (hash-table-test obj))))
+                            (maphash #'(lambda (k v)
+                                       (setf (gethash (funcall simple-intern-fn k) new-ht)
+                                             (funcall simple-intern-fn v)))
+                                     obj)
+                            new-ht))
+                         ; Otherwise just leave as is
+                         (t obj)))))
+     (values-list (mapcar general-intern-fn outval))))
 ;; Same as inout-intern macro but only performs the pre- interning portion.
 ;; Interns the incoming symbols and stores it in midval before evaluating
 ;; the body.
