@@ -21,8 +21,9 @@
     (let ((done nil)
           (acc '()))
       (loop while (not done)
-            do (multiple-value-bind (line done) 
+            do (multiple-value-bind (line done?)
                    (read-line fh nil)
+                 (setf done done?)
                  (push line acc)))
       (reverse acc))))
 
