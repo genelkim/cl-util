@@ -11,6 +11,7 @@
   (declare (ignore x))
   t)
 
+(declaim (ftype (function (&rest (or function symbol)) function) compose))
 (defun compose (&rest args)
   "Composes any number of one argument functions.
   Modified from https://rosettacode.org/wiki/Function_composition#Common_Lisp"

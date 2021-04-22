@@ -58,6 +58,8 @@
     extract-category
     tree-find
     tree-find-if
+    tree-depth
+    alist-keys
 
     ;; symbol.lisp
     split-into-atoms

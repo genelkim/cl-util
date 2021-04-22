@@ -112,3 +112,6 @@
     ;; strip off the counter and reverse.
     (reverse (first (reduce #'helper lst :initial-value (list nil 0))))))
 
+(defun alist-keys (alist)
+  (mapcar #'car alist))
+
