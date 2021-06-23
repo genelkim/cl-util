@@ -1,3 +1,6 @@
+DEPRECATED
+NB: This repository is being deprecated. The project was renamed for the purpose of adding to Quicklisp without causing confusion in the repository name. Please use GUTE instead: https://github.com/genelkim/gute.
+
 Gene Louis Kim's Lisp Utilities.
 Started ~2018-11-15
 
